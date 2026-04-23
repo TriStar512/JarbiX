@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="JarbiX"/>
+  <meta name="theme-color" content="#0D1117"/>
+  <title>JarbiX</title>
+  <link rel="manifest" href="/static/manifest.json"/>
+  <link rel="apple-touch-icon" href="/static/icons/icon-192.png"/>
+  <link rel="stylesheet" href="/static/css/app.css"/>
+</head>
+<body>
+
+  <!-- ── Status bar spacer (for iPhone notch/island) ── -->
+  <div class="status-bar-spacer"></div>
+
+  <!-- ── Header ── -->
+  <header id="app-header">
+    <div class="header-inner">
+      <span class="header-title">JarbiX</span>
+      <div class="header-right">
+        <span id="conn-dot" class="conn-dot offline" title="Connection status"></span>
+        <span id="last-updated" class="last-updated">—</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Main content area ── -->
+  <main id="main-content">
+
+    <!-- Dashboard -->
+    <section id="view-dashboard" class="view active">
+      <div class="scroll-area">
+        <div id="status-card" class="card status-card">
+          <div class="status-dot-wrap">
+            <span id="status-dot" class="status-dot stopped"></span>
+          </div>
+          <div>
+            <div id="status-label" class="status-label stopped">BOT STOPPED</div>
+            <div class="status-sub">JarbiX · Hyperliquid</div>
+          </div>
+          <div class="spacer"></div>
+          <span id="paper-badge" class="badge badge-blue hidden">PAPER</span>
+        </div>
+
+        <div class="grid-2">
+          <div class="card mini-card">
+            <div class="mini-label"><span class="icon">📈</span> Daily P&L</div>
+            <div id="dash-pnl" class="mini-value">—</div>
+          </div>
+          <div class="card mini-card">
+            <div class="mini-label"><span class="icon">🔥</span> Portfolio Heat</div>
+            <div id="dash-heat" class="mini-value">—</div>
+          </div>
+          <div class="card mini-card">
+            <div class="mini-label"><span class="icon">🔄</span> Trades Today</div>
+            <div id="dash-trades" class="mini-value">—</div>
+          </div>
+          <div class="card mini-card">
+            <div class="mini-label"><span class="icon">📉</span> Loss Streak</div>
+            <div id="dash-streak" class="mini-value">—</div>
+          </div>
+        </div>
+
+        <div class="card heat-card">
+          <div class="heat-header">
+            <span class="section-label">Portfolio Heat</span>
+            <span id="heat-pct" class="heat-pct">0%</span>
+          </div>
+          <div class="heat-track">
+            <div id="heat-fill" class="heat-fill" style="width:0%"></div>
+          </div>
+        </div>
+
+        <div class="card" id="positions-card">
+          <div class="section-label">Active Positions</div>
+          <div id="positions-list"><div class="empty-state">No active positions</div></div>
+        </div>
+
+        <div id="dash-error" class="error-banner hidden"></div>
+      </div>
+    </section>
+
+    <!-- Signals -->
+    <section id="view-signals" class="view">
+      <div class="scroll-area">
+        <div id="signals-list"><div class="empty-state mt-40">Waiting for signals…</div></div>
+      </div>
+    </section>
+
+    <!-- Metrics -->
+    <section id="view-metrics" class="view">
+      <div class="scroll-area">
+        <div class="card win-rate-card">
+          <div class="donut-wrap">
+            <svg viewBox="0 0 80 80" class="donut">
+              <circle class="donut-bg" cx="40" cy="40" r="30"/>
+              <circle id="donut-arc" class="donut-arc" cx="40" cy="40" r="30"
+                stroke-dasharray="0 188.5" transform="rotate(-90 40 40)"/>
+            </svg>
+            <div class="donut-label">
+              <span id="win-rate-pct">—</span>
+              <small>Win Rate</small>
+            </div>
+          </div>
+          <div class="win-rate-stats">
+            <div class="wr-row"><span class="dot green"></span><span id="wins-count">Wins: —</span></div>
+            <div class="wr-row"><span class="dot red"></span><span id="losses-count">Losses: —</span></div>
+            <div class="wr-row"><span class="dot grey"></span><span id="total-count">Total: —</span></div>
+          </div>
+        </div>
+
+        <div class="card pnl-card">
+          <div class="section-label">Total P&L</div>
+          <div id="total-pnl" class="pnl-value">—</div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card mini-card">
+            <div class="mini-label"><span class="icon">📊</span> Sharpe</div>
+            <div id="sharpe" class="mini-value">—</div>
+          </div>
+          <div class="card mini-card">
+            <div class="mini-label"><span class="icon">✖</span> Profit Factor</div>
+            <div id="profit-factor" class="mini-value">—</div>
+          </div>
+          <div class="card mini-card">
+            <div class="mini-label"><span class="icon">↘</span> Max Drawdown</div>
+            <div id="max-dd" class="mini-value red">—</div>
+          </div>
+          <div class="card mini-card">
+            <div class="mini-label"><span class="icon">↔</span> Total Trades</div>
+            <div id="metrics-total" class="mini-value">—</div>
+          </div>
+        </div>
+
+        <div class="card" id="trade-history-card">
+          <div class="section-label">Recent Trades</div>
+          <div id="trade-history"><div class="empty-state">No trades yet</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Controls -->
+    <section id="view-controls" class="view">
+      <div class="scroll-area">
+        <div class="card toggle-card">
+          <div class="toggle-header">
+            <div>
+              <div class="section-label">Trading Bot</div>
+              <div id="ctrl-status" class="ctrl-status stopped">Stopped</div>
+            </div>
+            <div id="ctrl-icon" class="ctrl-icon stopped">⏹</div>
+          </div>
+          <button id="btn-toggle" class="btn btn-start">Start Bot</button>
+        </div>
+
+        <div class="card flatten-card">
+          <div class="flatten-header">
+            <span class="flatten-icon">⚠️</span>
+            <span class="flatten-title">Emergency Controls</span>
+          </div>
+          <p class="flatten-desc">Immediately closes all Hyperliquid positions and stops the bot.</p>
+          <button id="btn-flatten" class="btn btn-danger">⛔ EMERGENCY FLATTEN</button>
+        </div>
+
+        <div class="card" id="session-card">
+          <div class="section-label">Session Info</div>
+          <div id="session-info"><div class="empty-state">Connecting…</div></div>
+        </div>
+
+        <div id="ctrl-error" class="error-banner hidden"></div>
+      </div>
+    </section>
+
+    <!-- Settings -->
+    <section id="view-settings" class="view">
+      <div class="scroll-area">
+        <div class="card">
+          <div class="section-label">Bot Server URL</div>
+          <input id="setting-url" class="text-input" type="url"
+            placeholder="http://192.168.x.x:5000" autocapitalize="none" autocorrect="off"/>
+          <p class="input-hint">IP address of the PC running api.py — must be on the same Wi-Fi.</p>
+        </div>
+
+        <div class="card">
+          <div class="section-label">Auto-Refresh: <span id="interval-label">5s</span></div>
+          <input id="setting-interval" class="slider" type="range" min="3" max="60" value="5" step="1"/>
+        </div>
+
+        <button id="btn-save" class="btn btn-primary">Save Settings</button>
+
+        <div class="card" id="bot-config-card">
+          <div class="section-label">Bot Risk Config (server-side)</div>
+          <div id="bot-config-list"><div class="empty-state">Loading…</div></div>
+          <p class="input-hint">Edit these values in the server's .env file.</p>
+        </div>
+
+        <div class="card about-card">
+          <div class="section-label">About</div>
+          <div class="about-row"><span>App Version</span><span>1.0.0</span></div>
+          <div class="about-row"><span>Platform</span><span>PWA · iOS / iPadOS</span></div>
+          <div class="about-row"><span>Broker</span><span>Hyperliquid</span></div>
+          <div class="about-row"><span>Bot</span><span>JarbiX v1.0</span></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── Tab bar ── -->
+  <nav id="tab-bar">
+    <button class="tab active" data-view="dashboard">
+      <span class="tab-icon">⬤</span>
+      <span class="tab-label">Dashboard</span>
+    </button>
+    <button class="tab" data-view="signals">
+      <span class="tab-icon">〜</span>
+      <span class="tab-label">Signals</span>
+    </button>
+    <button class="tab" data-view="metrics">
+      <span class="tab-icon">▦</span>
+      <span class="tab-label">Metrics</span>
+    </button>
+    <button class="tab" data-view="controls">
+      <span class="tab-icon">⏻</span>
+      <span class="tab-label">Controls</span>
+    </button>
+    <button class="tab" data-view="settings">
+      <span class="tab-icon">⚙</span>
+      <span class="tab-label">Settings</span>
+    </button>
+  </nav>
+
+  <!-- ── Safe-area bottom spacer ── -->
+  <div class="safe-area-bottom"></div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

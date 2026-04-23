@@ -1,7 +1,8 @@
 """
-JarbiX REST API — serves the iOS companion app.
-Run independently: python api.py
-Or import and call run_api() in a background thread from main.py.
+JarbiX REST API + PWA server.
+Run:  python api.py
+Then open  http://<your-pc-ip>:5000  in Safari on your iPhone/iPad,
+tap Share → Add to Home Screen, and it runs like a native app.
 """
 
 import sqlite3
@@ -9,12 +10,16 @@ import os
 import time
 import threading
 from datetime import datetime
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory, render_template
 from config import Config
 from risk import RiskManager
 from signals import generate_signals
 
-app = Flask(__name__)
+app = Flask(
+    __name__,
+    template_folder=os.path.join(os.path.dirname(__file__), 'webapp', 'templates'),
+    static_folder=os.path.join(os.path.dirname(__file__), 'webapp', 'static'),
+)
 
 # Shared state (in production, back with Redis or a DB)
 _state_lock = threading.Lock()
@@ -151,8 +156,31 @@ def after_request(resp):
     return resp
 
 
+# ── PWA routes ────────────────────────────────────────────────────
+
+@app.route("/")
+def pwa_index():
+    return render_template("index.html")
+
+
+@app.route("/static/sw.js")
+def service_worker():
+    """Serve SW from root scope so it can control the whole origin."""
+    resp = send_from_directory(app.static_folder, "sw.js")
+    resp.headers["Service-Worker-Allowed"] = "/"
+    resp.headers["Cache-Control"] = "no-cache"
+    return resp
+
+
+# ── Server ────────────────────────────────────────────────────────
+
 def run_api(host: str = "0.0.0.0", port: int = None, debug: bool = False):
     port = port or int(os.getenv("FLASK_PORT", 5000))
+    print(f"\n  JarbiX is running!")
+    print(f"  Open in Safari on your iPhone/iPad:")
+    print(f"  → Find your PC's IP (ipconfig on Windows) and go to:")
+    print(f"  → http://<your-pc-ip>:{port}")
+    print(f"  → Then tap Share → Add to Home Screen\n")
     app.run(host=host, port=port, debug=debug, use_reloader=False)
 
 
