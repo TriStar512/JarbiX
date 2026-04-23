@@ -1,0 +1,9 @@
+ccxt>=4.0.0
+pandas
+numpy
+python-dotenv
+rich
+flask
+requests
+websockets
+sqlite3
