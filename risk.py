@@ -16,7 +16,7 @@ class RiskManager:
             return False
         if portfolio_heat > 0.8:
             return False
-        if self.daily_trade_count >= 12:          # new: max 12 trades per day
+        if self.daily_trade_count >= Config.MAX_DAILY_TRADES:
             return False
         if time.time() - self.last_trade_time < 300 and self.daily_loss_streak > 0:  # 5-min cool-off after loss
             return False
